@@ -27,51 +27,67 @@ app.get("/api/usuarios",async(req,res)=>{
     res.json(data);
 });
 //Criar Usuario e Enviar Email de Boas-vindas
-app.post("/api/usuarios/criar",async(req,res)=>{
-    try{
-        let{email,nome,senha,tipo}=req.body;
-        console.log("Recebido no backend:",req.body);
-        if(!email || !nome || !senha || !tipo){
-            return res.status(400).json({error:"Todos os campos são obrigatórios"});
-        }
-        const criptografarSenha = await bcrypt.hash(senha,10);
+app.post("/api/usuarios/criar", async (req, res) => {
+    try {
+        let { email, nome, senha, tipo } = req.body;
+        console.log("📥 Recebido no backend:", req.body);
 
-        const { data, error } = await supabase.from("usuarios").insert([
-            {
-                nome,
-                email,
-                senha: criptografarSenha,
-                tipo: tipo || "usuario",
-            },
-        ]);
+        // Validação de campos obrigatórios
+        if (!email || !nome || !senha || !tipo) {
+            return res.status(400).json({ error: "Todos os campos são obrigatórios" });
+        }
+
+        // Criptografar senha
+        const criptografarSenha = await bcrypt.hash(senha, 10);
+
+        // Inserir no Supabase
+        const { data, error } = await supabase
+            .from("usuarios")
+            .insert([
+                {
+                    nome,
+                    email,
+                    senha: criptografarSenha,
+                    tipo: tipo || "usuario",
+                },
+            ]);
+
+        console.log("📤 Resultado do insert no Supabase:", { data, error });
 
         if (error) {
-        console.error("Erro do Supabase:", error);
+            console.error("❌ Erro do Supabase:", error);
 
-        if (error.message.includes("duplicate key value")) {
-            return res.status(409).json({ error: "E-mail já cadastrado." });
+            if (error.message.includes("duplicate key value")) {
+                return res.status(409).json({ error: "E-mail já cadastrado." });
+            }
+
+            return res.status(500).json({ 
+                error: "Erro ao inserir usuário no banco",
+                detalhes: error.message 
+            });
         }
 
-        return res.status(500).json({ error: error.message });
-        }
-
-        // Enviar email de boas-vindas
+        // Enviar e-mail de boas-vindas
         const mensagem = `
             <h2>Bem vindo(a), ${nome}</h2>
             <p>Seu cadastro foi realizado com sucesso!</p>
             <p>Estamos felizes em tê-lo(a) conosco.</p>
-            
         `;
-        enviarEmail(email,"Boas vindas ao TutorWay",mensagem)
-            .then(()=>console.log("Email de boas-vindas enviado com sucesso"))
-            .catch((error)=>console.error("Erro ao enviar email:",error));
 
-        res.status(201).json({ message: "Usuário criado com sucesso!"});
+        enviarEmail(email, "Boas vindas ao TutorWay", mensagem)
+            .then(() => console.log("📧 Email de boas-vindas enviado com sucesso"))
+            .catch((error) => console.error("❌ Erro ao enviar email:", error));
 
-    }
-    catch (error) {
-        console.error("Erro inesperado:", error);
-        res.status(500).json({ error: "Erro ao criar usuário" });
+        // Resposta final
+        res.status(201).json({ message: "Usuário criado com sucesso!" });
+
+    } catch (error) {
+        console.error("🔥 Erro inesperado:", error);
+        res.status(500).json({ 
+            error: "Erro ao criar usuário",
+            detalhes: error.message,
+            stack: error.stack
+        });
     }
 });
 
