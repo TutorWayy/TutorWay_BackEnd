@@ -1,0 +1,14 @@
+Criar usuario:
+http://localhost:3000/api/usuarios/criar
+
+Listar usuario:
+http://localhost:3000/api/usuarios
+
+Login:
+http://localhost:3000/api/usuarios/Login
+
+Atualizar Conta:
+http://localhost:3000/api/usuarios/atualizar/:id
+
+Apagar Conta:
+http://localhost:3000/api/usuarios/apagar/:id
