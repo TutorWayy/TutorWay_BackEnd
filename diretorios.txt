@@ -1,8 +1,11 @@
 Criar usuario:
 https://tutorway-backend.onrender.com/api/usuarios/criar
 
-Listar usuario:
+Listar usuarios:
 https://tutorway-backend.onrender.com/api/usuarios
+
+Listar usuario:
+https://tutorway-backend.onrender.com/api/usuario/:id
 
 Login:
 https://tutorway-backend.onrender.com/api/usuarios/Login

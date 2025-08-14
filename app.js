@@ -25,6 +25,14 @@ app.get("/api/usuarios", async (req, res) => {
   res.json(data);
 });
 
+//listar usuario:
+app.get("/api/usuarios/:id", async (req, res) => {
+  const { id } = req.params;
+  const { data, error } = await supabase.from("usuarios").select("*").eq("id", id);
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
+
 // Criar usuário e enviar email de boas-vindas
 app.post("/api/usuarios/criar", async (req, res) => {
   try {
